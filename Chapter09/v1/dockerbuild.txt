@@ -1,0 +1,154 @@
+// v1
+cd /root/kubernetes-in-action/Chapter09/v1
+docker build -t 192.168.233.60/library/kubia:v1 .
+docker push 192.168.233.60/library/kubia:v1
+
+// v2
+cd /root/kubernetes-in-action/Chapter09/v2
+docker build -t 192.168.233.60/library/kubia:v2 .
+docker push 192.168.233.60/library/kubia:v2
+
+// v3
+cd /root/kubernetes-in-action/Chapter09/v3
+docker build -t 192.168.233.60/library/kubia:v3 .
+docker push 192.168.233.60/library/kubia:v3
+
+// v4
+cd /root/kubernetes-in-action/Chapter09/v4
+docker build -t 192.168.233.60/library/kubia:v4 .
+docker push 192.168.233.60/library/kubia:v4
+
+
+// v1
+cd /root/kubernetes-in-action/Chapter09/v1
+docker build -t 192.168.233.60/luksa/kubia:v1 .
+docker push 192.168.233.60/luksa/kubia:v1
+
+// v2
+cd /root/kubernetes-in-action/Chapter09/v2
+docker build -t 192.168.233.60/luksa/kubia:v2 .
+docker push 192.168.233.60/luksa/kubia:v2
+
+// v3
+cd /root/kubernetes-in-action/Chapter09/v3
+docker build -t 192.168.233.60/luksa/kubia:v3 .
+docker push 192.168.233.60/luksa/kubia:v3
+
+// v4
+cd /root/kubernetes-in-action/Chapter09/v4
+docker build -t 192.168.233.60/luksa/kubia:v4 .
+docker push 192.168.233.60/luksa/kubia:v4
+
+
+docker push registry.cn-hangzhou.aliyuncs.com/kennycheng
+
+
+
+// v1
+cd /root/kubernetes-in-action/Chapter09/v1
+docker build -t registry.cn-hangzhou.aliyuncs.com/kennycheng/kubia:v1 .
+docker push registry.cn-hangzhou.aliyuncs.com/kennycheng/kubia:v1
+
+// v2
+cd /root/kubernetes-in-action/Chapter09/v2
+docker build -t registry.cn-hangzhou.aliyuncs.com/kennycheng/kubia:v2 .
+docker push registry.cn-hangzhou.aliyuncs.com/kennycheng/kubia:v2
+
+// v3
+cd /root/kubernetes-in-action/Chapter09/v3
+docker build -t registry.cn-hangzhou.aliyuncs.com/kennycheng/kubia:v3 .
+docker push registry.cn-hangzhou.aliyuncs.com/kennycheng/kubia:v3
+
+// v4
+cd /root/kubernetes-in-action/Chapter09/v4
+docker build -t registry.cn-hangzhou.aliyuncs.com/kennycheng/kubia:v4 .
+docker push registry.cn-hangzhou.aliyuncs.com/kennycheng/kubia:v4
+
+
+修改镜像地址
+
+[root@master1 Chapter09]# cat kubia-rc-and-service-v1.yaml 
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: kubia-v1
+spec:
+  replicas: 3
+  template:
+    metadata:
+      name: kubia
+      labels:
+        app: kubia
+    spec:
+      containers:
+      - image: 192.168.233.60/luksa/kubia:v1 
+        name: nodejs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubia
+spec:
+  type: LoadBalancer
+  selector:
+    app: kubia
+  ports:
+  - port: 80
+    targetPort: 8080
+
+
+
+// 创建service and rc
+
+kubectl apply -f kubia-rc-and-service-v1.yaml
+
+
+// 访问服务
+
+kubectl exec -it kubia-v1-c9xxp curl http://kubia.default.svc.cluster.local
+
+// 升级到v2
+
+kubectl rolling-update kubia-v1 kubia-v2 --image=192.168.233.60/luksa/kubia:v2
+
+// 删除旧的rc
+kubectl delete rc --all
+
+// 创建deployment
+kubectl create -f kubia-deployment-v1.yaml --record
+
+// 通过DNS发起请求
+kubectl exec -it kubia-6dd5bf6868-gdmv4 curl http://kubia.default.svc.cluster.local
+
+// 在Pod内部循环发起请求
+while true; do curl http://kubia.default.svc.cluster.local; done
+
+// 使用Deployment升级版本到v2
+kubectl set image deployment kubia nodejs=192.168.233.60/luksa/kubia:v2
+
+// 减慢滚动升级速度
+kubectl patch deployment kubia -p '{"spec":{"minReadySeconds": 10}}'
+
+// 回滚升级
+kubectl rollout undo deployment kubia
+
+// 显示Deployment的滚动升级历史
+kubectl rollout history deployment kubia
+
+// 回滚到一个特定的Deployment版本
+kubectl rollout undo deployment kubia --to-revision=1
+
+
+// 暂停滚动升级
+kubectl set image deployment kubia nodejs=192.168.233.60/luksa/kubia:v4
+
+kubectl rollout pause deployment kubia
+
+// 恢复滚动升级
+kubectl rollout resume deployment kubia
+
+// 使用kubectl apply 升级Deployment
+kubectl apply -f kubia-deployment-v3-with-readinesscheck.yaml --record
+
+// 查看滚动升级状态
+kubectl rollout status deployment kubia

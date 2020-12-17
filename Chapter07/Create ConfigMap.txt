@@ -1,0 +1,21 @@
+kubectl create configmap fortune-config --from-literal=sleep-internval=25
+kubectl create configmap myconfigmap --from-literal=foo=bar --from-literal=bar=baz --from-literal=one=two
+从文件内容创建ConfigMap条目
+kubectl create configmap myconfig --from-file=config-file.conf
+kubectl create configmap myconfig --from-file=customkey=config-file.conf
+
+kubectl create configmap myconfig --from-file=my-nginx-config.conf
+kubectl create configmap myconfig1 --from-file=my-nginx-config=my-nginx-config.conf
+
+
+ 从文件夹创建ConfigMap
+ kubectl create configmap myconfig2 --from-file=/path/to/dir
+
+ 合并不同选项
+ kubectl create configmap my-config
+   --from-file=foo.json
+   --from-file=foobar.conf
+   --from-file=config-opts/
+   --from-literal=some=thing
+   
+    
