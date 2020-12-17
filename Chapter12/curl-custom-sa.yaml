@@ -9,4 +9,4 @@ spec:
     image: tutum/curl
     command: ["sleep", "9999999"]
   - name: ambassador
-    image: luksa/kubectl-proxy:1.6.2
+    image: 192.168.233.60/luksa/kubectl-proxy:1.6.2

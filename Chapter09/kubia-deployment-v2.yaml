@@ -10,5 +10,5 @@ spec:
         app: kubia
     spec:
       containers:
-      - image: luksa/kubia:v2
+      - image: 192.168.233.60/luksa/kubia:v2
         name: nodejs

@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: kubia
-        image: luksa/kubia-pet
+        image: 192.168.233.60/luksa/kubia-pet
         ports:
         - name: http
           containerPort: 8080
